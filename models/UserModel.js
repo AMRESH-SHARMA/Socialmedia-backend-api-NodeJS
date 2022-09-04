@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
+function toLower(str) {
+  return str.toLowerCase();
+}
 const UserSchema = new mongoose.Schema ({                                        
   username:  {
     type:  String,
@@ -8,6 +11,7 @@ const UserSchema = new mongoose.Schema ({
   }, 
   email: {
     type:  String,
+    set: toLower,
     required: true,
   }, 
   password:  {

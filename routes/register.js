@@ -15,14 +15,24 @@ router.post("/register", async (req, res) => {
       if (foundUser) {
         res.status(406).send("username Already taken! Try another one");
       } else {
-        let data =  new User({
-          username: (req.body.username),               //You can use md5 hashing
-          email: (req.body.email),
-          password: (req.body.password)
+        User.findOne({email : (req.body.email)},async (err, foundemail) => {
+          if (foundemail) {
+            res.status(406).send("email Already taken! Try another one");
+          } else{
+            let data =  new User({
+              username: (req.body.username),               //You can use md5 hashing
+              email: (req.body.email),
+              password: (req.body.password)
+            });
+            await data.save().then((result)=>{res.send(result)});
+          }
         });
-        await data.save().then((result)=>{res.send(result)});
+
       };
     });
+
+
+
 
 
   } catch (error) {
