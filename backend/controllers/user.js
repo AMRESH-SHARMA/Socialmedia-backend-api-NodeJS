@@ -1,6 +1,7 @@
 const User = require("../models/User")
 const jwt = require("jsonwebtoken");
 const { deleteOne } = require("../models/Post");
+const md5 = require("md5");
 
 exports.register = async (req, res) => {
   try {
@@ -16,9 +17,9 @@ exports.register = async (req, res) => {
             res.status(406).send("email Already taken! Try another one");
           } else {
             let registerData = new User({
-              username: req.body.username,
-              email: req.body.email,
-              password: req.body.password
+              username: md5(req.body.username),
+              email: md5(req.body.email),
+              password: md5(req.body.password)
             });
             await registerData.save()
               .then((result) => { res.send(result) });
@@ -37,15 +38,15 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-
-    const { username, password } = req.body;
+    username=md5(req.body.username)
+    password=md5(req.body.password)
     const foundUser = await User.findOne({ username });
     if (foundUser) {
-      const authtoken= await foundUser.generateToken();
-      res.status(200).cookie("authtoken", authtoken, {
+      const jwtToken= await foundUser.generateToken();
+      res.status(200).cookie("jwtToken", jwtToken, {
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         httpOnly: true
-      }).json({ msg: "Logged in", foundUser, authtoken });
+      }).json({ msg: "Logged in", foundUser, jwtToken });
     } else {
       res.status(404).send("Wrong Username OR password");
     };
@@ -57,8 +58,8 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
-    const {authtoken} =req.cookies
-    res.status(200).cookie(authtoken,null).json({msg: "Logout done"})
+    const {jwtToken} =req.cookies
+    res.status(200).cookie(jwtToken,null).json({msg: "Logout done"})
   } catch (error) {
     res.send("An error occured");
     console.log(error);

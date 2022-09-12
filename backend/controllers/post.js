@@ -46,7 +46,7 @@ exports.updatePost = async (req,res)=>{
     await post.save();
     res.status(200).json({msg: "post updated",post})
   } catch (error) {
-    console.log("err")
+    console.log(error)
     res.send(error)
   }
 }
@@ -68,7 +68,7 @@ exports.deletePost = async(req,res)=>{
     res.status(200).json({msg: "post deleted",post})
   } catch (error) {
     console.log("err")
-    res.send(error)
+    res.status(404).send(error)
   }
 }
 

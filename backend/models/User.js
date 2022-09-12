@@ -41,9 +41,10 @@ const validate = (user) => {
   return schema.validate(user);
 };
 
+
 userSchema.methods.generateToken = async function () {
-  const authtoken = jwt.sign({ _id: this._id }, process.env.JWT_SECRET);
-  return authtoken
+  const jwtToken = jwt.sign({ _id: this._id }, process.env.JWT_SECRET);
+  return jwtToken
 }
 
 // module.exports  = { User, validate};

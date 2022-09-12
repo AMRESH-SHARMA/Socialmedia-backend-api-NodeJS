@@ -3,11 +3,11 @@ const jwt = require("jsonwebtoken");
 
 exports.isAuthenticated = async(req,res,next)=>{
   try {
-    const {authtoken} = req.cookies;
-    if(!authtoken) {
+    const {jwtToken} = req.cookies;
+    if(!jwtToken) {
       return res.status(406).json({mgs:"Please login first, jwt token not found"})
     }
-    const decode = await jwt.verify(authtoken,process.env.JWT_SECRET);
+    const decode = await jwt.verify(jwtToken,process.env.JWT_SECRET);
     req.user = await User.findById(decode._id)
     next();
   } catch (err) {
