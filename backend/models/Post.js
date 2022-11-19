@@ -2,28 +2,11 @@ const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema ({                                        
   content: String,
+  imgUrl:String,
   postedBy:{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  likes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
-  comments: [
-    {
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-      comment:{
-        type: String,
-        
-      },
-    },
-  ],
   createdAt:{
     type: Date,
     default: Date.now,

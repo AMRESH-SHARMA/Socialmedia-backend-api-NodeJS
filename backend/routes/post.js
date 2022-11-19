@@ -1,18 +1,21 @@
 const express = require("express");
-const { readPost,createPost, likeUnlike, deletePost, updatePost, commentPost } = require('../controllers/post');
+const {  createPost, deletePost, getPostById } = require('../controllers/post');
 const { isAuthenticated } = require("../middlewares/auth");
+const multer = require("multer");
+const { multerStorage } = require('../utils/multer')
+const upload = multer({
+  storage: multerStorage,
+});
+const cpUpload = upload.single("imageAsset")
 const router = express.Router();
 
-router.route("/post")
-  .get(isAuthenticated,readPost)
+router.route("/post/:id")
+  .get( getPostById)
 
-router.route("/post/upload")
-  .post(isAuthenticated,createPost);
+router.route("/post")
+  .post(isAuthenticated, cpUpload, createPost);
 
 router.route("/post/:id")
-  .get(isAuthenticated,likeUnlike)
-  .post(isAuthenticated,commentPost)
-  .put(isAuthenticated,updatePost)
-  .delete(isAuthenticated,deletePost)
+  .delete(isAuthenticated, deletePost)
 
 module.exports = router;

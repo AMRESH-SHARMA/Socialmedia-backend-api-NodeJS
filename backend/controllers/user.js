@@ -4,29 +4,28 @@ const { deleteOne } = require("../models/Post");
 const md5 = require("md5");
 
 exports.register = async (req, res) => {
-  try {
-    // const { error } = validate(req.body);
-    // if (error) return res.status(406).send(error.details[0].message);
 
+  var { username, password } = req.body
+  if (!username) {
+    return res.send('username field is empty')
+  } else if (!password) {
+    return res.send('password field is empty')
+  }
+
+  try {
     User.findOne({ username: (req.body.username) }, async (err, foundUser) => {
       if (foundUser) {
         res.status(406).send("username Already taken! Try another one");
       } else {
-        User.findOne({ email: (req.body.email) }, async (err, foundemail) => {
-          if (foundemail) {
-            res.status(406).send("email Already taken! Try another one");
-          } else {
-            let registerData = new User({
-              username: md5(req.body.username),
-              email: md5(req.body.email),
-              password: md5(req.body.password)
-            });
-            await registerData.save()
-              .then((result) => { res.send(result) });
-          }
+        let registerData = new User({
+          username: (req.body.username),
+          password: md5(req.body.password)
         });
-      };
-    });
+        await registerData.save()
+          .then((result) => { res.send('registration done') })
+          .catch((err) => { res.send(err) })
+      }
+    })
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -37,12 +36,24 @@ exports.register = async (req, res) => {
 
 
 exports.login = async (req, res) => {
+  var { username, password } = req.body
+  if (!username) {
+    return res.send('username field is empty')
+  } else if (!password) {
+    return res.send('password field is empty')
+  }
+
   try {
-    username=md5(req.body.username)
-    password=md5(req.body.password)
-    const foundUser = await User.findOne({ username });
+
+    const foundUser = await User.findOne({
+      $and: [
+        { username: (req.body.username) },
+        { password: md5(req.body.password) }
+      ]
+    });
+
     if (foundUser) {
-      const jwtToken= await foundUser.generateToken();
+      const jwtToken = await foundUser.generateToken();
       res.status(200).cookie("jwtToken", jwtToken, {
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         httpOnly: true
@@ -58,8 +69,9 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
-    const {jwtToken} =req.cookies
-    res.status(200).cookie(jwtToken,null).json({msg: "Logout done"})
+    const { jwtToken } = req.cookies
+    res.status(200).clearCookie("jwtToken").json({ msg: "Logout done" })
+    res.end()
   } catch (error) {
     res.send("An error occured");
     console.log(error);
